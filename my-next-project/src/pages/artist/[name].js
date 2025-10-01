@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { artistImages } from "@/utils/artistImages";
 import Navbar from "@/components/Navbar";
 import { IoIosArrowBack } from "react-icons/io";
-import Link from "next/link";
 
 // Função para determinar a estação
 function getSeason(date) {
@@ -138,14 +137,7 @@ export default function ArtistPage({ data, artistName }) {
           alt={artistName}
           className="w-90 h-90 object-cover mb-4 rounded-lg"
         />
-
-        {/* Nome com seta para voltar */}
-        <div className="flex items-center gap-2">
-          <Link href="/artists" className="text-white hover:text-purple-400">
-            <IoIosArrowBack className="w-6 h-6 cursor-pointer" />
-          </Link>
-          <h1 className="text-3xl font-bold text-white">{artistName}</h1>
-        </div>
+        <h1 className="text-3xl font-bold">{artistName}</h1>
       </div>
 
       {/* Estatísticas */}
