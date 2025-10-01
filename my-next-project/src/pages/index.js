@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   contarTotalMusicas,
   obterPrimeiraMusica,
@@ -12,13 +13,36 @@ import Image from "next/image";
 import { FaCalendarDay } from "react-icons/fa";
 
 export default function Home() {
-  const hoje = new Date();
+  const [popup, setPopup] = useState(null);
+  const [visible, setVisible] = useState(false); // controla animação
+
+  const hoje = new Date("2024-01-18T00:00:00");
   const dia = String(hoje.getDate()).padStart(2, "0");
-  const mes = String(hoje.getMonth() + 1).padStart(2, "0"); // Janeiro é 0
+  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
   const ano = hoje.getFullYear();
   const dataFormatada = `${dia}/${mes}/${ano}`;
+
+  // Função para mostrar pop-up com animação
+  const mostrarPopup = (mensagem) => {
+    setPopup(mensagem);
+    setVisible(true);
+    setTimeout(() => setVisible(false), 1800); // inicia fade-out após 1.8s
+    setTimeout(() => setPopup(null), 2000); // remove o pop-up após 2s
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Pop-up com fade */}
+      {popup && (
+        <div
+          className={`fixed top-4 left-1/2 transform -translate-x-1/2 bg-[#9900FF] text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 ${
+            visible ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {popup}
+        </div>
+      )}
+
       {/* Logo */}
       <div className="flex justify-center mt-6">
         <Image
@@ -32,7 +56,6 @@ export default function Home() {
       {/* Card do Perfil */}
       <div className="max-w-4xl mx-auto p-6 rounded-2xl bg-transparent text-white">
         <div className="flex gap-6 h-64">
-          {/* Metade esquerda: Foto + Nome */}
           <div className="w-1/2 flex flex-col items-center justify-center gap-2">
             <img
               src="https://thisis-images.spotifycdn.com/37i9dQZF1DZ06evO1IPOOk-default.jpg"
@@ -41,20 +64,23 @@ export default function Home() {
             />
             <h2 className="text-xl font-semibold">Mr Lamar</h2>
           </div>
-
-          {/* Metade direita: Data + Botões */}
           <div className="w-1/2 flex flex-col justify-center items-center gap-4">
-            {/* Data com mais espaçamento acima do primeiro botão */}
             <p className="flex items-center text-sm text-gray-300 justify-center mb-8">
               <FaCalendarDay className="mr-1" />
               {dataFormatada}
             </p>
 
-            {/* Botões empilhados com mesmo comprimento */}
-            <button className="w-3/4 px-4 py-2 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition">
+            {/* Botões com pop-up */}
+            <button
+              onClick={() => mostrarPopup("Perfil editado")}
+              className="w-3/4 px-4 py-2 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition"
+            >
               Editar Perfil
             </button>
-            <button className="w-3/4 px-4 py-2 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition">
+            <button
+              onClick={() => mostrarPopup("Perfil partilhado")}
+              className="w-3/4 px-4 py-2 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition"
+            >
               Partilhar Perfil
             </button>
           </div>
@@ -70,49 +96,42 @@ export default function Home() {
             </div>
             <div className="text-white">Total de reproduções</div>
           </div>
-
           <div className="p-4">
             <div className="text-lg font-semibold text-white truncate">
               {obterPrimeiraMusica()}
             </div>
             <div className="text-white">Primeira música no histórico</div>
           </div>
-
           <div className="p-4">
             <div className="text-lg font-semibold text-white truncate">
               {encontrarArtistaMaisOuvido()}
             </div>
             <div className="text-white">Artista mais ouvido</div>
           </div>
-
           <div className="p-4">
             <div className="text-lg font-semibold text-white truncate">
               {contarMusicasDiferentes()}
             </div>
             <div className="text-white">Musicas diferentes</div>
           </div>
-
           <div className="p-4">
             <div className="text-lg font-semibold text-white truncate">
               {contarMinutosOuvidos()}
             </div>
             <div className="text-white">Minutos ouvidos</div>
           </div>
-
           <div className="p-4">
             <div className="text-lg font-semibold text-white truncate">
               {mediaTempoDiario()}
             </div>
             <div className="text-white">Média tempo diário</div>
           </div>
-
           <div className="p-4">
             <div className="text-lg font-semibold text-white truncate">
               {horaMaisOuvida()}
             </div>
             <div className="text-white">Hora do dia que mais ouve</div>
           </div>
-
           <div className="p-4">
             <div className="text-lg font-semibold text-white truncate">
               {estacaoMaisOuvida()}
