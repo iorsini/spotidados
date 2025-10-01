@@ -11,7 +11,7 @@ export default function Navbar() {
   const isStatsActive = pathname === "/artists" || pathname.startsWith("/artist");
 
   return (
-    <nav className="bg-black text-white h-18 flex justify-center items-center gap-x-25 shadow-t">
+    <nav className="bg-black text-white h-18 flex justify-around items-center gap-x-25 shadow-t">
       <Link href="/" className={isUserActive ? "text-purple-400" : "text-white"}>
         <FaRegUser className="w-7 h-7" />
       </Link>
