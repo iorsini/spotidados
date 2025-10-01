@@ -3,7 +3,10 @@ import path from "path";
 import { useEffect, useState } from "react";
 import { artistImages } from "@/utils/artistImages";
 import Navbar from "@/components/Navbar";
+import { IoIosArrowBack } from "react-icons/io";
+import Link from "next/link";
 
+// Função para determinar a estação
 function getSeason(date) {
   const month = date.getMonth() + 1;
   if ([12, 1, 2].includes(month)) return "Inverno";
@@ -12,6 +15,7 @@ function getSeason(date) {
   return "Outono";
 }
 
+// Função para calcular estatísticas do artista
 function getArtistStats(data, artistName, topArtists) {
   if (!data) return null;
   const artistPlays = data.filter(
@@ -51,6 +55,7 @@ function getArtistStats(data, artistName, topArtists) {
   };
 }
 
+// Função para pegar os top artistas
 function getTopArtists(data, topN = 100) {
   const counts = {};
   data.forEach((item) => {
@@ -66,40 +71,49 @@ function getTopArtists(data, topN = 100) {
       count,
       image:
         artistImages[name] ||
-        "https://via.placeholder.com/150?text=No+Image",
+        "https://via.placeholder.com/400?text=No+Image",
     }));
 }
 
+// Gera paths estáticos
 export async function getStaticPaths() {
   const filePath = path.join(process.cwd(), "src/data/history.json");
   const raw = fs.readFileSync(filePath, "utf-8");
   const data = JSON.parse(raw);
 
   const artists = [
-    ...new Set(data.map((i) => i.master_metadata_album_artist_name).filter(Boolean)),
+    ...new Set(
+      data
+        .map((i) => i.master_metadata_album_artist_name)
+        .filter(Boolean)
+    ),
   ];
 
   return {
     paths: artists.map((name) => ({
-      params: { name: encodeURIComponent(name) },
+      params: { name: encodeURIComponent(name) }, // string encode
     })),
     fallback: false,
   };
 }
 
+// Gera props estáticas
 export async function getStaticProps({ params }) {
   const filePath = path.join(process.cwd(), "src/data/history.json");
   const raw = fs.readFileSync(filePath, "utf-8");
   const data = JSON.parse(raw);
 
+  const artistName = decodeURIComponent(params.name); // string, sem join()
+
   return {
     props: {
       data,
-      artistName: decodeURIComponent(params.name),
+      artistName,
     },
   };
 }
 
+// Componente principal
 export default function ArtistPage({ data, artistName }) {
   const [heroHeight, setHeroHeight] = useState(300);
 
@@ -118,25 +132,42 @@ export default function ArtistPage({ data, artistName }) {
   return (
     <div className="h-screen flex flex-col">
       {/* Header com imagem e nome */}
-      <div
-        className="flex flex-col items-center justify-center"
-      >
+      <div className="flex flex-col items-center justify-center py-6">
         <img
           src={artistImage}
           alt={artistName}
           className="w-90 h-90 object-cover mb-4 rounded-lg"
         />
-        <h1 className="text-3xl font-bold">{artistName}</h1>
+
+        {/* Nome com seta para voltar */}
+        <div className="flex items-center gap-2">
+          <Link href="/artists" className="text-white hover:text-purple-400">
+            <IoIosArrowBack className="w-6 h-6 cursor-pointer" />
+          </Link>
+          <h1 className="text-3xl font-bold text-white">{artistName}</h1>
+        </div>
       </div>
 
       {/* Estatísticas */}
       <div className="flex flex-col items-center text-center px-6 py-6 gap-3">
-        <p>🎧 Ouviu <b>{stats.timesPlayed}</b> vezes</p>
-        <p>🏆 Posição no Top: <b>{stats.position}</b></p>
-        <p>⏱️ <b>{stats.minutesPlayed}</b> minutos escutados</p>
-        <p>🍂 Estação favorita: <b>{stats.favoriteSeason}</b></p>
-        <p>🎵 <b>{stats.uniqueTracks}</b> músicas únicas</p>
-        <p>📊 Representa <b>{stats.percentage}%</b> das suas plays</p>
+        <p>
+          🎧 Ouviu <b>{stats.timesPlayed}</b> vezes
+        </p>
+        <p>
+          🏆 Posição no Top: <b>{stats.position}</b>
+        </p>
+        <p>
+          ⏱️ <b>{stats.minutesPlayed}</b> minutos escutados
+        </p>
+        <p>
+          🍂 Estação favorita: <b>{stats.favoriteSeason}</b>
+        </p>
+        <p>
+          🎵 <b>{stats.uniqueTracks}</b> músicas únicas
+        </p>
+        <p>
+          📊 Representa <b>{stats.percentage}%</b> das suas plays
+        </p>
 
         <a
           href={`/artist/${encodeURIComponent(artistName)}/top20`}

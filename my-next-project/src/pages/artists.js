@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import fs from "fs";
 import path from "path";
 import { artistImages } from "../utils/artistImages";
@@ -67,10 +67,30 @@ export async function getStaticProps() {
 export default function Artists({ data }) {
   const [period, setPeriod] = useState("all");
   const [activeTab, setActiveTab] = useState("artistas");
-  const [activeArtist, setActiveArtist] = useState(null); // para toque em celular
+  const [activeArtist, setActiveArtist] = useState(null);
 
   const filteredData = filterByPeriod(data, period);
   const topArtists = getTopArtists(filteredData, 100);
+
+  // Ref para calcular altura da navbar + botões
+  const navbarRef = useRef(null);
+  const [navbarHeight, setNavbarHeight] = useState(0);
+
+  useEffect(() => {
+    if (navbarRef.current) {
+      setNavbarHeight(navbarRef.current.offsetHeight);
+    }
+    const handleResize = () => {
+      if (navbarRef.current) {
+        setNavbarHeight(navbarRef.current.offsetHeight);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Altura do fade
+  const fadeHeight = 80; // h-20 = 80px
 
   return (
     <div className="h-screen flex flex-col relative overflow-hidden">
@@ -80,10 +100,14 @@ export default function Artists({ data }) {
         style={{ backgroundAttachment: "fixed" }}
       />
 
-      {/* Navbar + Top 100 + Botões sempre fixos no topo */}
-      <div className="fixed top-0 left-0 w-full z-20 bg-gradient-to-b from-[#9900FF] to-[#6400aa]">
+      {/* Navbar + Top 100 + Botões */}
+      <div
+        ref={navbarRef}
+        className="fixed top-0 left-0 w-full z-20 bg-gradient-to-b from-[#9900FF] to-[#6400aa]"
+      >
         <div className="flex flex-col items-center py-6">
           <h1 className="text-4xl font-bold text-white mb-4">TOP 100</h1>
+
           <div className="flex gap-8 text-xl mb-4">
             <button
               className={`border-b-2 ${
@@ -152,19 +176,19 @@ export default function Artists({ data }) {
         </div>
       </div>
 
-      {/* Grid Rolável com fade in/out */}
-      <div className="flex-1 overflow-y-auto pt-[calc(6rem+4rem+6rem)] pb-24 px-6 relative z-0">
-        {/* Fade Top */}
-        <div className="pointer-events-none fixed top-[calc(6rem+4rem+4rem)] left-0 w-full h-20 z-10">
-          <div className="w-full h-full bg-gradient-to-b from-[#6400aa] to-black/0" />
-        </div>
+      {/* Fade Top logo abaixo dos botões */}
+      <div
+        className="pointer-events-none fixed left-0 w-full z-10"
+        style={{ top: navbarHeight -2, height: fadeHeight }}
+      >
+        <div className="w-full h-full bg-gradient-to-b from-[#6400aa] to-black/0" />
+      </div>
 
-        {/* Fade Bottom */}
-        <div className="pointer-events-none fixed bottom-0 left-0 w-full h-40 z-10">
-          <div className="w-full h-full bg-gradient-to-t from-black/100 to-black/0" />
-        </div>
-
-        {/* Grid de artistas */}
+      {/* Grid rolável */}
+      <div
+        className="flex-1 overflow-y-auto pb-24 px-6 relative z-0"
+        style={{ paddingTop: navbarHeight + fadeHeight - 40}}
+      >
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-7 relative z-0">
           {topArtists.map((a) => (
             <a
@@ -185,6 +209,11 @@ export default function Artists({ data }) {
             </a>
           ))}
         </div>
+      </div>
+
+      {/* Fade Bottom FIXO */}
+      <div className="pointer-events-none fixed bottom-0 left-0 w-full h-60 z-10">
+        <div className="w-full h-full bg-gradient-to-t from-black/100 to-black/0" />
       </div>
 
       {/* Navbar Bottom */}
