@@ -65,7 +65,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto bg-transparent rounded-lg shadow-md p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4">
-            <div className="text-3xl font-bold text-white">
+            <div className="text-lg font-semibold text-white truncate">
               {contarTotalMusicas()}
             </div>
             <div className="text-white">Total de reproduções</div>
