@@ -1,9 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { useEffect, useState } from "react";
 import { artistImages } from "@/utils/artistImages";
 import Navbar from "@/components/Navbar";
-import { IoIosArrowBack } from "react-icons/io";
 
 // Função para determinar a estação
 function getSeason(date) {
@@ -16,7 +14,6 @@ function getSeason(date) {
 
 // Função para calcular estatísticas do artista
 function getArtistStats(data, artistName, topArtists) {
-  if (!data) return null;
   const artistPlays = data.filter(
     (item) => item.master_metadata_album_artist_name === artistName
   );
@@ -35,8 +32,7 @@ function getArtistStats(data, artistName, topArtists) {
     seasonCount[s] = (seasonCount[s] || 0) + 1;
   });
   const favoriteSeason =
-    Object.entries(seasonCount).sort((a, b) => b[1] - a[1])[0]?.[0] ||
-    "N/A";
+    Object.entries(seasonCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
 
   const totalPlays = data.length;
   const percentage = ((timesPlayed / totalPlays) * 100).toFixed(2);
@@ -74,54 +70,39 @@ function getTopArtists(data, topN = 100) {
     }));
 }
 
-// Gera paths estáticos
+// 🔹 Gera as rotas dinâmicas
 export async function getStaticPaths() {
   const filePath = path.join(process.cwd(), "src/data/history.json");
   const raw = fs.readFileSync(filePath, "utf-8");
   const data = JSON.parse(raw);
 
   const artists = [
-    ...new Set(
-      data
-        .map((i) => i.master_metadata_album_artist_name)
-        .filter(Boolean)
-    ),
+    ...new Set(data.map((i) => i.master_metadata_album_artist_name).filter(Boolean)),
   ];
 
   return {
     paths: artists.map((name) => ({
-      params: { name: encodeURIComponent(name) }, // string encode
+      params: { name: encodeURIComponent(name) },
     })),
-    fallback: false,
+    fallback: "blocking", // gera novas páginas sob demanda
   };
 }
 
-// Gera props estáticas
+// 🔹 Gera os props de cada artista
 export async function getStaticProps({ params }) {
   const filePath = path.join(process.cwd(), "src/data/history.json");
   const raw = fs.readFileSync(filePath, "utf-8");
   const data = JSON.parse(raw);
 
-  const artistName = decodeURIComponent(params.name); // string, sem join()
+  const artistName = decodeURIComponent(params.name);
 
   return {
-    props: {
-      data,
-      artistName,
-    },
+    props: { data, artistName },
   };
 }
 
-// Componente principal
+// 🔹 Componente principal da página de artista
 export default function ArtistPage({ data, artistName }) {
-  const [heroHeight, setHeroHeight] = useState(300);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setHeroHeight(0.5 * window.innerHeight);
-    }
-  }, []);
-
   const topArtists = getTopArtists(data);
   const stats = getArtistStats(data, artistName, topArtists);
   const artistImage =
@@ -142,24 +123,12 @@ export default function ArtistPage({ data, artistName }) {
 
       {/* Estatísticas */}
       <div className="flex flex-col items-center text-center px-6 py-6 gap-3">
-        <p>
-          🎧 Ouviu <b>{stats.timesPlayed}</b> vezes
-        </p>
-        <p>
-          🏆 Posição no Top: <b>{stats.position}</b>
-        </p>
-        <p>
-          ⏱️ <b>{stats.minutesPlayed}</b> minutos escutados
-        </p>
-        <p>
-          🍂 Estação favorita: <b>{stats.favoriteSeason}</b>
-        </p>
-        <p>
-          🎵 <b>{stats.uniqueTracks}</b> músicas únicas
-        </p>
-        <p>
-          📊 Representa <b>{stats.percentage}%</b> das suas plays
-        </p>
+        <p>🎧 Ouviu <b>{stats.timesPlayed}</b> vezes</p>
+        <p>🏆 Posição no Top: <b>{stats.position}</b></p>
+        <p>⏱️ <b>{stats.minutesPlayed}</b> minutos escutados</p>
+        <p>🍂 Estação favorita: <b>{stats.favoriteSeason}</b></p>
+        <p>🎵 <b>{stats.uniqueTracks}</b> músicas únicas</p>
+        <p>📊 Representa <b>{stats.percentage}%</b> das suas plays</p>
 
         <a
           href={`/artist/${encodeURIComponent(artistName)}/top20`}
