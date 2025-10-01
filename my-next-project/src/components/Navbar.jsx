@@ -1,27 +1,27 @@
-import Link from 'next/link'
-import { useRouter } from 'next/router'
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { FaRegUser } from "react-icons/fa";
+import { MdAutoGraph } from "react-icons/md";
 
 export default function Navbar() {
-  const router = useRouter()
-  const isActive = (path) => router.pathname === path
+  const router = useRouter();
+  const isActive = (path) => router.pathname === path;
 
   return (
-    <nav className="bg-black text-white p-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-green-400">
-          🎵 Spotidados
-        </Link>
-
-        <div className="flex space-x-6">
-          <Link href="/perfil" className={isActive('/perfil') ? 'bg-green-600 p-2' : 'p-2'}>
-            👤
-          </Link>
-          <Link href="/estatisticas" className={isActive('/estatisticas') ? 'bg-green-600 p-2' : 'p-2'}>
-            📊
-          </Link>
-          <Link href="/pesquisa" className={isActive('/pesquisa') ? 'bg-green-600 p-2' : 'p-2'}>
-            🔍
-          </Link>
-        </div>
-    </nav>
-  )
+  <nav className="bg-transparent text-white p-4 flex justify-around items-center">
+    <div className="flex space-x-6">
+      <Link href="/" className={isActive("/") ? "p-2" : "p-2"}>
+        <FaRegUser className="size-5" />
+      </Link>
+    </div>
+    <div>
+      <Link
+        href="/artists"
+        className={isActive("/artists") ? "p-2" : "p-2"}
+      >
+        <MdAutoGraph className="size-5" />
+      </Link>
+    </div>
+  </nav>
+);
 }
