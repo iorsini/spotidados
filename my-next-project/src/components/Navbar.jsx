@@ -8,20 +8,16 @@ export default function Navbar() {
   const isActive = (path) => router.pathname === path;
 
   return (
-  <nav className="bg-transparent text-white p-4 flex justify-around items-center">
-    <div className="flex space-x-6">
-      <Link href="/" className={isActive("/") ? "p-2" : "p-2"}>
-        <FaRegUser className="size-5" />
+    <nav className="bg-black text-white h-18 flex justify-center items-center gap-x-25 shadow-t">
+      <Link href="/" className={isActive("/") ? "text-purple-400" : "text-white"}>
+        <FaRegUser className="w-7 h-7" />
       </Link>
-    </div>
-    <div>
       <Link
         href="/artists"
-        className={isActive("/artists") ? "p-2" : "p-2"}
+        className={isActive("/artists") ? "text-purple-400" : "text-white"}
       >
-        <MdAutoGraph className="size-5" />
+        <MdAutoGraph className="w-9 h-9" />
       </Link>
-    </div>
-  </nav>
-);
+    </nav>
+  );
 }
