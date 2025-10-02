@@ -35,6 +35,7 @@ function filterByPeriod(data, period) {
   return data.filter((item) => new Date(item.ts) >= cutoff);
 }
 
+// ---- TOP ARTISTAS: baseado em quantidade de plays ----
 function getTopArtists(data, topN = 100) {
   const counts = {};
   data.forEach((item) => {
@@ -50,8 +51,36 @@ function getTopArtists(data, topN = 100) {
       count,
       image:
         artistImages[name] ||
-        "https://via.placeholder.com/150?text=No+Image",
+        null, // se não tiver, cai no fallback
     }));
+}
+
+// ---- TOP MÚSICAS: baseado em tempo total (ms_played) ----
+function getTopTracks(data, topN = 100) {
+  const counts = {};
+  data.forEach((item) => {
+    const track = item.master_metadata_track_name;
+    const artist = item.master_metadata_album_artist_name;
+    if (track && artist) {
+      const key = `${track} - ${artist}`;
+      counts[key] = (counts[key] || 0) + item.ms_played; // soma tempo total
+    }
+  });
+
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, topN)
+    .map(([name, ms_played]) => {
+      const [track, artist] = name.split(" - ");
+      return {
+        track,
+        artist,
+        ms_played,
+        hours: Math.floor(ms_played / 1000 / 60 / 60), // inteiro em horas
+        image:
+          artistImages[artist] || null, // se não tiver, cai no fallback
+      };
+    });
 }
 
 export async function getStaticProps() {
@@ -64,13 +93,14 @@ export async function getStaticProps() {
   };
 }
 
-export default function Artists({ data }) {
+export default function Top100({ data }) {
   const [period, setPeriod] = useState("all");
   const [activeTab, setActiveTab] = useState("artistas");
   const [activeArtist, setActiveArtist] = useState(null);
 
   const filteredData = filterByPeriod(data, period);
   const topArtists = getTopArtists(filteredData, 100);
+  const topTracks = getTopTracks(filteredData, 100);
 
   // Ref para calcular altura da navbar + botões
   const navbarRef = useRef(null);
@@ -179,7 +209,7 @@ export default function Artists({ data }) {
       {/* Fade Top logo abaixo dos botões */}
       <div
         className="pointer-events-none fixed left-0 w-full z-10"
-        style={{ top: navbarHeight -2, height: fadeHeight }}
+        style={{ top: navbarHeight - 2, height: fadeHeight }}
       >
         <div className="w-full h-full bg-gradient-to-b from-[#6400aa] to-black/0" />
       </div>
@@ -187,27 +217,59 @@ export default function Artists({ data }) {
       {/* Grid rolável */}
       <div
         className="flex-1 overflow-y-auto pb-24 px-6 relative z-0"
-        style={{ paddingTop: navbarHeight + fadeHeight - 40}}
+        style={{ paddingTop: navbarHeight + fadeHeight - 40 }}
       >
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-7 relative z-0">
-          {topArtists.map((a) => (
-            <a
-              key={a.name}
-              href={`/artist/${encodeURIComponent(a.name)}`}
-              className={`group text-center transform transition-transform duration-200 ${
-                activeArtist === a.name ? "scale-110" : ""
-              }`}
-              onTouchStart={() => setActiveArtist(a.name)}
-              onTouchEnd={() => setActiveArtist(null)}
-            >
-              <img
-                src={a.image}
-                alt={a.name}
-                className="rounded-lg w-full object-cover group-hover:scale-110 transition-transform duration-200"
-              />
-              <p className="mt-1 font-regular text-white">{a.name}</p>
-            </a>
-          ))}
+          {activeTab === "artistas"
+            ? topArtists.map((a) => (
+                <a
+                  key={a.name}
+                  href={`/artist/${encodeURIComponent(a.name)}`}
+                  className={`group text-center transform transition-transform duration-200 ${
+                    activeArtist === a.name ? "scale-110" : ""
+                  }`}
+                  onTouchStart={() => setActiveArtist(a.name)}
+                  onTouchEnd={() => setActiveArtist(null)}
+                >
+                  {a.image ? (
+                    <img
+                      src={a.image}
+                      alt={a.name}
+                      className="rounded-lg w-full h-40 object-cover group-hover:scale-110 transition-transform duration-200"
+                    />
+                  ) : (
+                    <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
+                      <span className="text-xs font-semibold line-clamp-2">
+                        {a.name}
+                      </span>
+                    </div>
+                  )}
+                  <p className="mt-1 font-regular text-white">{a.name}</p>
+                </a>
+              ))
+            : topTracks.map((t) => (
+                <div
+                  key={`${t.track}-${t.artist}`}
+                  className="group text-center transform transition-transform duration-200"
+                >
+                  {t.image ? (
+                    <img
+                      src={t.image}
+                      alt={t.track}
+                      className="rounded-lg w-full h-40 object-cover group-hover:scale-110 transition-transform duration-200"
+                    />
+                  ) : (
+                    <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
+                      <span className="text-xs font-semibold line-clamp-2">
+                        {t.track}
+                      </span>
+                    </div>
+                  )}
+                  <p className="mt-1 font-bold text-white">{t.track}</p>
+                  <p className="text-sm text-gray-300">{t.artist}</p>
+                  <p className="text-xs text-gray-400">{t.hours} h ouvidas</p>
+                </div>
+              ))}
         </div>
       </div>
 
