@@ -89,7 +89,7 @@ export default function ArtistTop20({ data, artistName }) {
           <IoMdArrowRoundBack />
         </button>
 
-        <h2 className="text-2xl font-bold flex items-center gap-2">
+        <h2 className="text-2xl font-bold flex items-center gap-2 text-white">
           Top 20 Músicas
           {/* Botão do fogo mais colado */}
           <button
@@ -123,13 +123,13 @@ export default function ArtistTop20({ data, artistName }) {
             stats.songsRanked.map((s, index) => (
               <li
                 key={index}
-                className="rounded-xl shadow p-3 flex justify-between items-center hover:scale-[1.02] transition-transform"
+                className="rounded-xl shadow p-3 flex justify-between items-center hover:scale-[1.02] transition-transform text-white"
               >
                 <span className="font-medium">
                   {index + 1}. {s.master_metadata_track_name}
                   <span className="text-gray-500"> – {s.master_metadata_album_name}</span>
                 </span>
-                <span className="text-sm text-gray-600">{s.count}x</span>
+                <span className="text-sm text-white">{s.count}x</span>
               </li>
             ))
           ) : (
