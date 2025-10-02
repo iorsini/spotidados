@@ -118,11 +118,11 @@ export default function ArtistPage({ data, artistName }) {
           alt={artistName}
           className="w-90 h-90 object-cover mb-4 rounded-lg"
         />
-        <h1 className="text-3xl font-bold">{artistName}</h1>
+        <h1 className="text-3xl font-bold text-white">{artistName}</h1>
       </div>
 
       {/* Estatísticas */}
-      <div className="flex flex-col items-center text-center px-6 py-6 gap-3 pb-24">
+      <div className="flex flex-col items-center text-center px-6 py-6 gap-3 pb-24 text-white">
         <p>
           🎧 Ouviu <b>{stats.timesPlayed}</b> vezes
         </p>
