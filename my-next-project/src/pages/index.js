@@ -14,25 +14,18 @@ import { FaCalendarDay } from "react-icons/fa";
 
 export default function Home() {
   const [popup, setPopup] = useState(null);
-  const [visible, setVisible] = useState(false); // controla animação
+  const [visible, setVisible] = useState(false);
 
-  const hoje = new Date("2024-01-18T00:00:00");
-  const dia = String(hoje.getDate()).padStart(2, "0");
-  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-  const ano = hoje.getFullYear();
-  const dataFormatada = `${dia}/${mes}/${ano}`;
-
-  // Função para mostrar pop-up com animação
   const mostrarPopup = (mensagem) => {
     setPopup(mensagem);
     setVisible(true);
-    setTimeout(() => setVisible(false), 1800); // inicia fade-out após 1.8s
-    setTimeout(() => setPopup(null), 2000); // remove o pop-up após 2s
+    setTimeout(() => setVisible(false), 1800);
+    setTimeout(() => setPopup(null), 2000);
   };
 
   return (
-    <div className="space-y-6 relative">
-      {/* Pop-up com fade */}
+    <div className="relative">
+      {/* Pop-up */}
       {popup && (
         <div
           className={`fixed top-4 left-1/2 transform -translate-x-1/2 bg-[#9900FF] text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 ${
@@ -43,100 +36,102 @@ export default function Home() {
         </div>
       )}
 
-      {/* Logo */}
-      <div className="flex justify-center mt-6">
-        <Image
-          src="https://videos.openai.com/vg-assets/assets%2Ftask_01k6aj2kw2ez2tsk5xmbfkd841%2F1759143701_img_1.webp?st=2025-09-30T08%3A34%3A14Z&se=2025-10-06T09%3A34%3A14Z&sks=b&skt=2025-09-30T08%3A34%3A14Z&ske=2025-10-06T09%3A34%3A14Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=8ffff87a-01f1-47c9-9090-32999d4d6380&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=If5gA92ixU3FkQzEi6L78v13PhWT8uizwACBFWQy9zI%3D&az=oaivgprodscus"
-          alt="Meu Logo"
-          width={100}
-          height={100}
-        />
-      </div>
+      
+{/* Card Perfil */}
+<div className="p-6 rounded-2xl text-white">
+  <div className="flex gap-6 h-50">
+    {/* Foto de perfil + nome + data */}
+    <div className="w-1/2 flex flex-col items-center justify-center gap-2">
+      <img
+        src="https://thisis-images.spotifycdn.com/37i9dQZF1DZ06evO1IPOOk-default.jpg"
+        alt="Foto de perfil"
+        className="w-40 h-40 rounded-full"
+      />
+      <h2 className="text-xl font-semibold">Mr Lamar</h2>
+      {/* Data agora fica aqui */}
+      <p className="flex items-center text-sm text-gray-300 mt-1">
+        <FaCalendarDay className="mr-1" />
+        18/01/2024
+      </p>
+    </div>
 
-      {/* Card do Perfil */}
-      <div className="max-w-4xl mx-auto p-6 rounded-2xl bg-transparent text-white">
-        <div className="flex gap-6 h-64">
-          <div className="w-1/2 flex flex-col items-center justify-center gap-2">
-            <img
-              src="https://thisis-images.spotifycdn.com/37i9dQZF1DZ06evO1IPOOk-default.jpg"
-              alt="Foto de perfil"
-              className="w-40 h-40 rounded-full"
-            />
-            <h2 className="text-xl font-semibold">Mr Lamar</h2>
-          </div>
-          <div className="w-1/2 flex flex-col justify-center items-center gap-4">
-            <p className="flex items-center text-sm text-gray-300 justify-center mb-8">
-              <FaCalendarDay className="mr-1" />
-              {dataFormatada}
-            </p>
+    {/* Logo + botões */}
+    <div className="w-1/2 flex flex-col justify-center items-center gap-4">
+      <Image
+        src="https://videos.openai.com/vg-assets/assets%2Ftask_01k6aj2kw2ez2tsk5xmbfkd841%2F1759143701_img_1.webp?st=2025-10-02T06%3A44%3A02Z&se=2025-10-08T07%3A44%3A02Z&sks=b&skt=2025-10-02T06%3A44%3A02Z&ske=2025-10-08T07%3A44%3A02Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=1af02b11-169c-463d-b441-d2ccfc9f02c8&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=HAly8bKLg76DD%2Fs9XPAtWcEpLIr1E%2BmPmqC0Re8qAUc%3D&az=oaivgprodscus"
+        alt="Meu Logo"
+        width={100}
+        height={100}
+      />
+      <button
+        onClick={() => mostrarPopup("Perfil editado")}
+        className="w-3/4 px-4 py-2 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition"
+      >
+        Editar Perfil
+      </button>
+      <button
+        onClick={() => mostrarPopup("Perfil partilhado")}
+        className="w-3/4 px-4 py-2 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition"
+      >
+        Partilhar Perfil
+      </button>
+    </div>
+  </div>
+</div>
 
-            {/* Botões com pop-up */}
-            <button
-              onClick={() => mostrarPopup("Perfil editado")}
-              className="w-3/4 px-4 py-2 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition"
-            >
-              Editar Perfil
-            </button>
-            <button
-              onClick={() => mostrarPopup("Perfil partilhado")}
-              className="w-3/4 px-4 py-2 rounded-full bg-gray-800 text-white text-sm hover:bg-gray-700 transition"
-            >
-              Partilhar Perfil
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Estatísticas de músicas */}
-      <div className="max-w-4xl mx-auto bg-transparent rounded-lg shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4">
-            <div className="text-lg font-semibold text-white truncate">
-              {contarTotalMusicas()}
+      {/* ESTATÍSTICAS */}
+      <div className="pt-[40px] max-w-4xl mx-auto">
+        <div className="bg-transparent rounded-lg shadow-md p-6 
+                        max-h-[calc(100vh-380px)] overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4">
+              <div className="text-lg font-semibold text-white truncate">
+                {contarTotalMusicas()}
+              </div>
+              <div className="text-white">Total de reproduções</div>
             </div>
-            <div className="text-white">Total de reproduções</div>
-          </div>
-          <div className="p-4">
-            <div className="text-lg font-semibold text-white truncate">
-              {obterPrimeiraMusica()}
+            <div className="p-4">
+              <div className="text-lg font-semibold text-white truncate">
+                {obterPrimeiraMusica()}
+              </div>
+              <div className="text-white">Primeira música no histórico</div>
             </div>
-            <div className="text-white">Primeira música no histórico</div>
-          </div>
-          <div className="p-4">
-            <div className="text-lg font-semibold text-white truncate">
-              {encontrarArtistaMaisOuvido()}
+            <div className="p-4">
+              <div className="text-lg font-semibold text-white truncate">
+                {encontrarArtistaMaisOuvido()}
+              </div>
+              <div className="text-white">Artista mais ouvido</div>
             </div>
-            <div className="text-white">Artista mais ouvido</div>
-          </div>
-          <div className="p-4">
-            <div className="text-lg font-semibold text-white truncate">
-              {contarMusicasDiferentes()}
+            <div className="p-4">
+              <div className="text-lg font-semibold text-white truncate">
+                {contarMusicasDiferentes()}
+              </div>
+              <div className="text-white">Músicas diferentes</div>
             </div>
-            <div className="text-white">Musicas diferentes</div>
-          </div>
-          <div className="p-4">
-            <div className="text-lg font-semibold text-white truncate">
-              {contarMinutosOuvidos()}
+            <div className="p-4">
+              <div className="text-lg font-semibold text-white truncate">
+                {contarMinutosOuvidos()}
+              </div>
+              <div className="text-white">Minutos ouvidos</div>
             </div>
-            <div className="text-white">Minutos ouvidos</div>
-          </div>
-          <div className="p-4">
-            <div className="text-lg font-semibold text-white truncate">
-              {mediaTempoDiario()}
+            <div className="p-4">
+              <div className="text-lg font-semibold text-white truncate">
+                {mediaTempoDiario()}
+              </div>
+              <div className="text-white">Média tempo diário</div>
             </div>
-            <div className="text-white">Média tempo diário</div>
-          </div>
-          <div className="p-4">
-            <div className="text-lg font-semibold text-white truncate">
-              {horaMaisOuvida()}
+            <div className="p-4">
+              <div className="text-lg font-semibold text-white truncate">
+                {horaMaisOuvida()}
+              </div>
+              <div className="text-white">Hora do dia que mais ouve</div>
             </div>
-            <div className="text-white">Hora do dia que mais ouve</div>
-          </div>
-          <div className="p-4">
-            <div className="text-lg font-semibold text-white truncate">
-              {estacaoMaisOuvida()}
+            <div className="p-4">
+              <div className="text-lg font-semibold text-white truncate">
+                {estacaoMaisOuvida()}
+              </div>
+              <div className="text-white">Estação do ano que mais ouve</div>
             </div>
-            <div className="text-white">Estação do ano que mais ouve</div>
           </div>
         </div>
       </div>
