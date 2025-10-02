@@ -51,7 +51,7 @@ function getTopArtists(data, topN = 100) {
       count,
       image:
         artistImages[name] ||
-        "https://via.placeholder.com/150?text=No+Image",
+        null, // se não tiver, cai no fallback
     }));
 }
 
@@ -78,8 +78,7 @@ function getTopTracks(data, topN = 100) {
         ms_played,
         hours: Math.floor(ms_played / 1000 / 60 / 60), // inteiro em horas
         image:
-          artistImages[artist] ||
-          "https://via.placeholder.com/150?text=No+Image",
+          artistImages[artist] || null, // se não tiver, cai no fallback
       };
     });
 }
@@ -232,11 +231,19 @@ export default function Top100({ data }) {
                   onTouchStart={() => setActiveArtist(a.name)}
                   onTouchEnd={() => setActiveArtist(null)}
                 >
-                  <img
-                    src={a.image}
-                    alt={a.name}
-                    className="rounded-lg w-full object-cover group-hover:scale-110 transition-transform duration-200"
-                  />
+                  {a.image ? (
+                    <img
+                      src={a.image}
+                      alt={a.name}
+                      className="rounded-lg w-full h-40 object-cover group-hover:scale-110 transition-transform duration-200"
+                    />
+                  ) : (
+                    <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
+                      <span className="text-xs font-semibold line-clamp-2">
+                        {a.name}
+                      </span>
+                    </div>
+                  )}
                   <p className="mt-1 font-regular text-white">{a.name}</p>
                 </a>
               ))
@@ -245,16 +252,22 @@ export default function Top100({ data }) {
                   key={`${t.track}-${t.artist}`}
                   className="group text-center transform transition-transform duration-200"
                 >
-                  <img
-                    src={t.image}
-                    alt={t.track}
-                    className="rounded-lg w-full object-cover group-hover:scale-110 transition-transform duration-200"
-                  />
+                  {t.image ? (
+                    <img
+                      src={t.image}
+                      alt={t.track}
+                      className="rounded-lg w-full h-40 object-cover group-hover:scale-110 transition-transform duration-200"
+                    />
+                  ) : (
+                    <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
+                      <span className="text-xs font-semibold line-clamp-2">
+                        {t.track}
+                      </span>
+                    </div>
+                  )}
                   <p className="mt-1 font-bold text-white">{t.track}</p>
                   <p className="text-sm text-gray-300">{t.artist}</p>
-                  <p className="text-xs text-gray-400">
-                    {t.hours} h ouvidas
-                  </p>
+                  <p className="text-xs text-gray-400">{t.hours} h ouvidas</p>
                 </div>
               ))}
         </div>
