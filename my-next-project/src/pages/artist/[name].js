@@ -130,11 +130,8 @@ export default function ArtistPage({ data, artistName }) {
         <p>🎵 <b>{stats.uniqueTracks}</b> músicas únicas</p>
         <p>📊 Representa <b>{stats.percentage}%</b> das suas plays</p>
 
-        <a
-          href={`/artist/${encodeURIComponent(artistName)}/top20`}
-          className="mt-4 px-6 py-2 bg-[#9900FF] text-white rounded-lg font-semibold"
-        >
-          Ver Top 20 músicas
+        <a href={`/artist/top20?artist=${encodeURIComponent(artistName)}`} className="...">
+        Ver Top 20 músicas
         </a>
       </div>
 
