@@ -65,8 +65,7 @@ function getTopArtists(data, topN = 100) {
       name,
       count,
       image:
-        artistImages[name] ||
-        "https://via.placeholder.com/400?text=No+Image",
+        artistImages[name] || "https://via.placeholder.com/400?text=No+Image",
     }));
 }
 
@@ -77,7 +76,9 @@ export async function getStaticPaths() {
   const data = JSON.parse(raw);
 
   const artists = [
-    ...new Set(data.map((i) => i.master_metadata_album_artist_name).filter(Boolean)),
+    ...new Set(
+      data.map((i) => i.master_metadata_album_artist_name).filter(Boolean)
+    ),
   ];
 
   return {
@@ -106,8 +107,7 @@ export default function ArtistPage({ data, artistName }) {
   const topArtists = getTopArtists(data);
   const stats = getArtistStats(data, artistName, topArtists);
   const artistImage =
-    artistImages[artistName] ||
-    "https://via.placeholder.com/400?text=No+Image";
+    artistImages[artistName] || "https://via.placeholder.com/400?text=No+Image";
 
   return (
     <div className="h-screen flex flex-col">
@@ -122,16 +122,31 @@ export default function ArtistPage({ data, artistName }) {
       </div>
 
       {/* Estatísticas */}
-      <div className="flex flex-col items-center text-center px-6 py-6 gap-3">
-        <p>🎧 Ouviu <b>{stats.timesPlayed}</b> vezes</p>
-        <p>🏆 Posição no Top: <b>{stats.position}</b></p>
-        <p>⏱️ <b>{stats.minutesPlayed}</b> minutos escutados</p>
-        <p>🍂 Estação favorita: <b>{stats.favoriteSeason}</b></p>
-        <p>🎵 <b>{stats.uniqueTracks}</b> músicas únicas</p>
-        <p>📊 Representa <b>{stats.percentage}%</b> das suas plays</p>
+      <div className="flex flex-col items-center text-center px-6 py-6 gap-3 pb-24">
+        <p>
+          🎧 Ouviu <b>{stats.timesPlayed}</b> vezes
+        </p>
+        <p>
+          🏆 Posição no Top: <b>{stats.position}</b>
+        </p>
+        <p>
+          ⏱️ <b>{stats.minutesPlayed}</b> minutos escutados
+        </p>
+        <p>
+          🍂 Estação favorita: <b>{stats.favoriteSeason}</b>
+        </p>
+        <p>
+          🎵 <b>{stats.uniqueTracks}</b> músicas únicas
+        </p>
+        <p>
+          📊 Representa <b>{stats.percentage}%</b> das suas plays
+        </p>
 
-        <a href={`/artist/top20?artist=${encodeURIComponent(artistName)}`} className="...">
-        Ver Top 20 músicas
+        <a
+          href={`/artist/top20?artist=${encodeURIComponent(artistName)}`}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-700 transition"
+        >
+          Ver Top 20 músicas
         </a>
       </div>
 
