@@ -2,22 +2,14 @@ import fs from "fs";
 import path from "path";
 import { artistImages } from "@/utils/artistImages";
 import Navbar from "@/components/Navbar";
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { FaHeadphonesAlt } from "react-icons/fa";
 import { VscGraph } from "react-icons/vsc";
 import { IoMusicalNotesSharp } from "react-icons/io5";
 import { FaCanadianMapleLeaf } from "react-icons/fa6";
 import { FaRegClock } from "react-icons/fa";
 import { FaTrophy } from "react-icons/fa6";
-=======
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { useRouter } from "next/router";
->>>>>>> 22d8755c867d6c6dd2f7ee98ce2350dc391a4ec2
-=======
-import { IoMdArrowRoundBack } from "react-icons/io";
-import { useRouter } from "next/router";
->>>>>>> 22d8755c867d6c6dd2f7ee98ce2350dc391a4ec2
 
 // Função para determinar a estação
 function getSeason(date) {
@@ -152,21 +144,25 @@ export default function ArtistPage({ data, artistName }) {
 
       {/* Estatísticas */}
       <div className="flex flex-col items-center text-center px-6 py-6 gap-3 pb-24 text-white">
-<<<<<<< HEAD
-
-=======
->>>>>>> 22d8755c867d6c6dd2f7ee98ce2350dc391a4ec2
-        <p>🎧 Ouviu <b>{stats.timesPlayed}</b> vezes</p>
-        <p>🏆 Posição no Top: <b>{stats.position}</b></p>
-        <p>⏱️ <b>{stats.minutesPlayed}</b> minutos escutados</p>
-        <p>🍂 Estação favorita: <b>{stats.favoriteSeason}</b></p>
-        <p>🎵 <b>{stats.uniqueTracks}</b> músicas únicas</p>
-        <p>📊 Representa <b>{stats.percentage}%</b> das suas plays</p>
-<<<<<<< HEAD
-
-=======
->>>>>>> 22d8755c867d6c6dd2f7ee98ce2350dc391a4ec2
-
+        <p className="flex items-center gap-2">
+          <FaHeadphonesAlt /> Ouviu <b>{stats.timesPlayed}</b> vezes
+        </p>
+        <p className="flex items-center gap-2">
+          <FaTrophy /> Posição no Top: <b>{stats.position}</b>
+        </p>
+        <p className="flex items-center gap-2">
+          <FaRegClock /> <b>{stats.minutesPlayed}</b> minutos escutados
+        </p>
+        <p className="flex items-center gap-2">
+          <FaCanadianMapleLeaf /> Estação favorita:{" "}
+          <b>{stats.favoriteSeason}</b>
+        </p>
+        <p className="flex items-center gap-2">
+          <IoMusicalNotesSharp /> <b>{stats.uniqueTracks}</b> músicas únicas
+        </p>
+        <p className="flex items-center gap-2">
+          <VscGraph /> Representa <b>{stats.percentage}%</b> das suas plays
+        </p>
         <a
           href={`/artist/top20?artist=${encodeURIComponent(artistName)}`}
           className="bg-[#9900FF] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#7a00cc] transition"
