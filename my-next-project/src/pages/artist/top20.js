@@ -79,7 +79,7 @@ export default function ArtistTop20({ data, artistName }) {
           Top 20 Músicas
           <button
             onClick={() => setShowPopup(true)}
-            className="text-3xl text-red-600 hover:text-red-400 transition"
+            className="text-3xl text-[#1DB954] hover:text-[#1DB954] transition"
             title="Suas plays"
           >
             <BsFire />

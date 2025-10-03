@@ -136,9 +136,9 @@ export default function Top100({ data }) {
         className="fixed top-0 left-0 w-full z-20 bg-gradient-to-b from-[#9900FF] to-[#6400aa]"
       >
         <div className="flex flex-col items-center py-6">
-          <h1 className="text-4xl font-bold text-white mb-4">TOP 100</h1>
+          <h1 className="text-5xl font-bold text-white mb-4">TOP 100</h1>
 
-          <div className="flex gap-8 text-xl mb-4 text-white">
+          <div className="flex gap-8 text-2xl mb-4 text-white">
             <button
               className={`border-b-2 ${
                 activeTab === "artistas"
