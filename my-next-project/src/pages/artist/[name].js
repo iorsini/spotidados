@@ -2,12 +2,17 @@ import fs from "fs";
 import path from "path";
 import { artistImages } from "@/utils/artistImages";
 import Navbar from "@/components/Navbar";
+<<<<<<< HEAD
 import { FaHeadphonesAlt } from "react-icons/fa";
 import { VscGraph } from "react-icons/vsc";
 import { IoMusicalNotesSharp } from "react-icons/io5";
 import { FaCanadianMapleLeaf } from "react-icons/fa6";
 import { FaRegClock } from "react-icons/fa";
 import { FaTrophy } from "react-icons/fa6";
+=======
+import { IoMdArrowRoundBack } from "react-icons/io";
+import { useRouter } from "next/router";
+>>>>>>> 22d8755c867d6c6dd2f7ee98ce2350dc391a4ec2
 
 // Função para determinar a estação
 function getSeason(date) {
@@ -91,7 +96,7 @@ export async function getStaticPaths() {
     paths: artists.map((name) => ({
       params: { name: encodeURIComponent(name) },
     })),
-    fallback: "blocking", // gera novas páginas sob demanda
+    fallback: "blocking",
   };
 }
 
@@ -114,44 +119,46 @@ export default function ArtistPage({ data, artistName }) {
   const stats = getArtistStats(data, artistName, topArtists);
   const artistImage =
     artistImages[artistName] || "https://via.placeholder.com/400?text=No+Image";
+  const router = useRouter();
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Header com imagem e nome */}
+      {/* Header com imagem */}
       <div className="flex flex-col items-center justify-center py-6">
         <img
           src={artistImage}
           alt={artistName}
           className="w-90 h-90 object-cover mb-4 rounded-lg"
         />
-        <h1 className="text-3xl font-bold text-white">{artistName}</h1>
+
+        {/* Linha com seta à esquerda e nome centralizado */}
+        <div className="p-2 max-w-3xl w-full flex items-center justify-center relative">
+          <button
+            onClick={() => router.back()}
+            className="absolute left-0 text-3xl text-white hover:text-gray-300 transition"
+            title="Voltar"
+          >
+            <IoMdArrowRoundBack />
+          </button>
+
+          <h1 className="text-3xl font-bold text-white">{artistName}</h1>
+        </div>
       </div>
 
       {/* Estatísticas */}
       <div className="flex flex-col items-center text-center px-6 py-6 gap-3 pb-24 text-white">
-        <p className="flex items-center gap-2">
-          <FaHeadphonesAlt /> Ouviu <b>{stats.timesPlayed}</b> vezes
-        </p>
-        <p className="flex items-center gap-2">
-          <FaTrophy /> Posição no Top: <b>{stats.position}</b>
-        </p>
-        <p className="flex items-center gap-2">
-          <FaRegClock /> <b>{stats.minutesPlayed}</b> minutos escutados
-        </p>
-        <p className="flex items-center gap-2">
-          <FaCanadianMapleLeaf /> Estação favorita:{" "}
-          <b>{stats.favoriteSeason}</b>
-        </p>
-        <p className="flex items-center gap-2">
-          <IoMusicalNotesSharp /> <b>{stats.uniqueTracks}</b> músicas únicas
-        </p>
-        <p className="flex items-center gap-2">
-          <VscGraph /> Representa <b>{stats.percentage}%</b> das suas plays
-        </p>
+
+        <p>🎧 Ouviu <b>{stats.timesPlayed}</b> vezes</p>
+        <p>🏆 Posição no Top: <b>{stats.position}</b></p>
+        <p>⏱️ <b>{stats.minutesPlayed}</b> minutos escutados</p>
+        <p>🍂 Estação favorita: <b>{stats.favoriteSeason}</b></p>
+        <p>🎵 <b>{stats.uniqueTracks}</b> músicas únicas</p>
+        <p>📊 Representa <b>{stats.percentage}%</b> das suas plays</p>
+
 
         <a
           href={`/artist/top20?artist=${encodeURIComponent(artistName)}`}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-700 transition"
+          className="bg-[#9900FF] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#7a00cc] transition"
         >
           Ver Top 20 músicas
         </a>
