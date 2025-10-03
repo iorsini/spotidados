@@ -235,7 +235,7 @@ export default function Top100({ data }) {
                     <img
                       src={a.image}
                       alt={a.name}
-                      className="rounded-lg w-full h-40 object-cover group-hover:scale-110 transition-transform duration-200"
+                      className="rounded-lg w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-200"
                     />
                   ) : (
                     <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
@@ -256,7 +256,7 @@ export default function Top100({ data }) {
                     <img
                       src={t.image}
                       alt={t.track}
-                      className="rounded-lg w-full h-40 object-cover group-hover:scale-110 transition-transform duration-200"
+                      className="rounded-lg w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-200"
                     />
                   ) : (
                     <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
