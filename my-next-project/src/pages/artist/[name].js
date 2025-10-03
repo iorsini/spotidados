@@ -125,7 +125,7 @@ export default function ArtistPage({ data, artistName }) {
         <img
           src={artistImage}
           alt={artistName}
-          className="w-40 h-40 md:w-96 md:h-96 object-cover mb-4 rounded-lg"
+          className="w-90 h-90 md:w-96 md:h-96 object-cover mb-4 rounded-lg"
         />
 
         {/* Linha com seta à esquerda e nome centralizado */}
@@ -142,6 +142,16 @@ export default function ArtistPage({ data, artistName }) {
             {artistName}
           </h1>
         </div>
+      </div>
+
+      {/* Botão centralizado embaixo */}
+      <div className="flex justify-center mt-0 px-4">
+        <a
+          href={`/artist/top20?artist=${encodeURIComponent(artistName)}`}
+          className="bg-[#9900FF] text-white text-lg font-semibold px-4 py-2 rounded-lg hover:bg-[#7a00cc] transition sm:w-auto text-center"
+        >
+          Ver Top 20 músicas
+        </a>
       </div>
 
       {/* Estatísticas */}
@@ -209,16 +219,6 @@ export default function ArtistPage({ data, artistName }) {
             <div className="text-white text-lg mt-2">Das suas plays</div>
           </div>
         </div>
-      </div>
-
-      {/* Botão centralizado embaixo */}
-      <div className="flex justify-center mt-4 px-4">
-        <a
-          href={`/artist/top20?artist=${encodeURIComponent(artistName)}`}
-          className="bg-[#9900FF] text-white px-4 py-2 rounded-lg hover:bg-[#7a00cc] transition w-full sm:w-auto text-center"
-        >
-          Ver Top 20 músicas
-        </a>
       </div>
 
       {/* Navbar inferior */}
