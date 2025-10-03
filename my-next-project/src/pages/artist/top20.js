@@ -6,6 +6,8 @@ import { BsFire } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { FaRegClock } from "react-icons/fa";
+import { FaHeadphonesAlt } from "react-icons/fa";
 
 // Função para determinar a estação
 function getSeason(date) {
@@ -43,7 +45,9 @@ function getArtistStats(data, artistName) {
 
   const songsRanked = Object.entries(songCount)
     .map(([name, count]) => {
-      const sample = artistPlays.find(d => d.master_metadata_track_name === name);
+      const sample = artistPlays.find(
+        (d) => d.master_metadata_track_name === name
+      );
       return {
         master_metadata_track_name: name,
         master_metadata_album_name: sample?.master_metadata_album_name || "",
@@ -55,14 +59,20 @@ function getArtistStats(data, artistName) {
 
   const favorite = songsRanked[0]?.master_metadata_track_name || null;
 
-  return { songsRanked, totalMinutes, totalHours, favorite, favoriteSeason, totalPlays: artistPlays.length };
+  return {
+    songsRanked,
+    totalMinutes,
+    totalHours,
+    favorite,
+    favoriteSeason,
+    totalPlays: artistPlays.length,
+  };
 }
 
 export default function ArtistTop20({ data, artistName }) {
   const stats = getArtistStats(data, artistName);
   const artistImage =
-    artistImages[artistName] ||
-    "https://via.placeholder.com/400?text=No+Image";
+    artistImages[artistName] || "https://via.placeholder.com/400?text=No+Image";
 
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
@@ -102,18 +112,22 @@ export default function ArtistTop20({ data, artistName }) {
         </h2>
 
         {/* Popup */}
-{showPopup && (
-  <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-black/90 text-white shadow-lg rounded-lg p-4 w-64 z-50">
-    <p className="font-semibold">🎧 Plays: {stats.totalPlays}</p>
-    <p className="font-semibold">⏱️ Minutos: {stats.totalMinutes}</p>
-    <button
-      onClick={() => setShowPopup(false)}
-      className="mt-2 px-3 py-1 bg-white/20 text-white rounded hover:bg-white/30 transition"
-    >
-      Fechar
-    </button>
-  </div>
-)}
+        {showPopup && (
+          <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-black/90 text-white shadow-lg rounded-lg p-4 w-64 z-50">
+            <p className="flex justify-center items-center gap-2 font-semibold">
+              <FaHeadphonesAlt /> Plays: {stats.totalPlays}
+            </p>
+            <p className="flex justify-center items-center gap-2 font-semibold">
+              <FaRegClock /> Minutos: {stats.totalMinutes}
+            </p>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="mt-2 px-3 py-1 bg-white/20 text-white rounded hover:bg-white/30 transition"
+            >
+              Fechar
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Lista Top 20 */}
@@ -127,7 +141,10 @@ export default function ArtistTop20({ data, artistName }) {
               >
                 <span className="font-medium">
                   {index + 1}. {s.master_metadata_track_name}
-                  <span className="text-gray-500"> – {s.master_metadata_album_name}</span>
+                  <span className="text-gray-500">
+                    {" "}
+                    {s.master_metadata_album_name}
+                  </span>
                 </span>
                 <span className="text-sm text-white">{s.count}x</span>
               </li>
