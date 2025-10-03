@@ -119,13 +119,13 @@ export default function ArtistPage({ data, artistName }) {
   const router = useRouter();
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Header com imagem */}
       <div className="flex flex-col items-center justify-center py-6">
         <img
           src={artistImage}
           alt={artistName}
-          className="w-90 h-90 object-cover mb-4 rounded-lg"
+          className="w-40 h-40 md:w-96 md:h-96 object-cover mb-4 rounded-lg"
         />
 
         {/* Linha com seta à esquerda e nome centralizado */}
@@ -138,34 +138,84 @@ export default function ArtistPage({ data, artistName }) {
             <IoMdArrowRoundBack />
           </button>
 
-          <h1 className="text-3xl font-bold text-white">{artistName}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
+            {artistName}
+          </h1>
         </div>
       </div>
 
       {/* Estatísticas */}
-      <div className="flex flex-col items-center text-center px-6 py-6 gap-3 pb-24 text-white">
-        <p className="flex items-center gap-2">
-          <FaHeadphonesAlt /> Ouviu <b>{stats.timesPlayed}</b> vezes
-        </p>
-        <p className="flex items-center gap-2">
-          <FaTrophy /> Posição no Top: <b>{stats.position}</b>
-        </p>
-        <p className="flex items-center gap-2">
-          <FaRegClock /> <b>{stats.minutesPlayed}</b> minutos escutados
-        </p>
-        <p className="flex items-center gap-2">
-          <FaCanadianMapleLeaf /> Estação favorita:{" "}
-          <b>{stats.favoriteSeason}</b>
-        </p>
-        <p className="flex items-center gap-2">
-          <IoMusicalNotesSharp /> <b>{stats.uniqueTracks}</b> músicas únicas
-        </p>
-        <p className="flex items-center gap-2">
-          <VscGraph /> Representa <b>{stats.percentage}%</b> das suas plays
-        </p>
+      <div className="max-w-4xl mx-auto px-4 py-6 flex justify-evenly gap-x-8">
+        {/* Coluna esquerda */}
+        <div className="flex flex-col justify-between h-[300px]">
+          <div className="p-2">
+            <div className="flex items-center gap-3 text-2xl font-bold text-white">
+              <FaHeadphonesAlt className="text-[#1DB954] text-3xl" />
+              <span className="text-[#1DB954] text-2xl">
+                {stats.timesPlayed}
+              </span>
+            </div>
+            <div className="text-white text-lg mt-2">Total de plays</div>
+          </div>
+
+          <div className="p-2">
+            <div className="flex items-center gap-3 text-2xl font-bold text-white">
+              <FaTrophy className="text-[#1DB954] text-3xl" />
+              <span className="text-[#1DB954] text-2xl">{stats.position}</span>
+            </div>
+            <div className="text-white text-lg mt-2">Posição no Top</div>
+          </div>
+
+          <div className="p-2">
+            <div className="flex items-center gap-3 text-2xl font-bold text-white">
+              <FaRegClock className="text-[#1DB954] text-3xl" />
+              <span className="text-[#1DB954] text-2xl">
+                {stats.minutesPlayed}
+              </span>
+            </div>
+            <div className="text-white text-lg mt-2">Minutos escutados</div>
+          </div>
+        </div>
+
+        {/* Coluna direita */}
+        <div className="flex flex-col justify-between h-[300px]">
+          <div className="p-2">
+            <div className="flex items-center gap-3 text-2xl font-bold text-white">
+              <FaCanadianMapleLeaf className="text-[#1DB954] text-3xl" />
+              <span className="text-[#1DB954] text-2xl">
+                {stats.favoriteSeason}
+              </span>
+            </div>
+            <div className="text-white text-lg mt-2">Estação favorita</div>
+          </div>
+
+          <div className="p-2">
+            <div className="flex items-center gap-3 text-2xl font-bold text-white">
+              <IoMusicalNotesSharp className="text-[#1DB954] text-3xl" />
+              <span className="text-[#1DB954] text-2xl">
+                {stats.uniqueTracks}
+              </span>
+            </div>
+            <div className="text-white text-lg mt-2">Músicas diferentes</div>
+          </div>
+
+          <div className="p-2">
+            <div className="flex items-center gap-3 text-2xl font-bold text-white">
+              <VscGraph className="text-[#1DB954] text-3xl" />
+              <span className="text-[#1DB954] text-2xl">
+                {stats.percentage}%
+              </span>
+            </div>
+            <div className="text-white text-lg mt-2">Das suas plays</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Botão centralizado embaixo */}
+      <div className="flex justify-center mt-4 px-4">
         <a
           href={`/artist/top20?artist=${encodeURIComponent(artistName)}`}
-          className="bg-[#9900FF] text-white px-4 py-2 rounded-lg mt-4 hover:bg-[#7a00cc] transition"
+          className="bg-[#9900FF] text-white px-4 py-2 rounded-lg hover:bg-[#7a00cc] transition w-full sm:w-auto text-center"
         >
           Ver Top 20 músicas
         </a>

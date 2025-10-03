@@ -35,27 +35,24 @@ function filterByPeriod(data, period) {
   return data.filter((item) => new Date(item.ts) >= cutoff);
 }
 
-// ---- TOP ARTISTAS: baseado em quantidade de plays ----
+// ---- TOP ARTISTAS ----
 function getTopArtists(data, topN = 100) {
   const counts = {};
   data.forEach((item) => {
     const artist = item.master_metadata_album_artist_name;
     if (artist) counts[artist] = (counts[artist] || 0) + 1;
   });
-
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, topN)
     .map(([name, count]) => ({
       name,
       count,
-      image:
-        artistImages[name] ||
-        null, // se não tiver, cai no fallback
+      image: artistImages[name] || null,
     }));
 }
 
-// ---- TOP MÚSICAS: baseado em tempo total (ms_played) ----
+// ---- TOP MÚSICAS ----
 function getTopTracks(data, topN = 100) {
   const counts = {};
   data.forEach((item) => {
@@ -63,7 +60,7 @@ function getTopTracks(data, topN = 100) {
     const artist = item.master_metadata_album_artist_name;
     if (track && artist) {
       const key = `${track} - ${artist}`;
-      counts[key] = (counts[key] || 0) + item.ms_played; // soma tempo total
+      counts[key] = (counts[key] || 0) + item.ms_played;
     }
   });
 
@@ -72,13 +69,19 @@ function getTopTracks(data, topN = 100) {
     .slice(0, topN)
     .map(([name, ms_played]) => {
       const [track, artist] = name.split(" - ");
+      const album = data.find(
+        (item) =>
+          item.master_metadata_track_name === track &&
+          item.master_metadata_album_artist_name === artist
+      )?.master_metadata_album_album_name;
+
       return {
         track,
         artist,
+        album,
         ms_played,
-        hours: Math.floor(ms_played / 1000 / 60 / 60), // inteiro em horas
-        image:
-          artistImages[artist] || null, // se não tiver, cai no fallback
+        hours: Math.floor(ms_played / 1000 / 60 / 60),
+        image: artistImages[artist] || null,
       };
     });
 }
@@ -88,21 +91,19 @@ export async function getStaticProps() {
   const raw = fs.readFileSync(filePath, "utf-8");
   const data = JSON.parse(raw);
 
-  return {
-    props: { data },
-  };
+  return { props: { data } };
 }
 
 export default function Top100({ data }) {
   const [period, setPeriod] = useState("all");
   const [activeTab, setActiveTab] = useState("artistas");
   const [activeArtist, setActiveArtist] = useState(null);
+  const [activeTrackPopup, setActiveTrackPopup] = useState(null);
 
   const filteredData = filterByPeriod(data, period);
   const topArtists = getTopArtists(filteredData, 100);
   const topTracks = getTopTracks(filteredData, 100);
 
-  // Ref para calcular altura da navbar + botões
   const navbarRef = useRef(null);
   const [navbarHeight, setNavbarHeight] = useState(0);
 
@@ -119,8 +120,7 @@ export default function Top100({ data }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Altura do fade
-  const fadeHeight = 80; // h-20 = 80px
+  const fadeHeight = 80;
 
   return (
     <div className="h-screen flex flex-col relative overflow-hidden">
@@ -219,59 +219,115 @@ export default function Top100({ data }) {
         className="flex-1 overflow-y-auto pb-24 px-6 relative z-0"
         style={{ paddingTop: navbarHeight + fadeHeight - 40 }}
       >
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-7 relative z-0">
-          {activeTab === "artistas"
-            ? topArtists.map((a) => (
-                <a
-                  key={a.name}
-                  href={`/artist/${encodeURIComponent(a.name)}`}
-                  className={`group text-center transform transition-transform duration-200 ${
-                    activeArtist === a.name ? "scale-110" : ""
-                  }`}
-                  onTouchStart={() => setActiveArtist(a.name)}
-                  onTouchEnd={() => setActiveArtist(null)}
-                >
-                  {a.image ? (
-                    <img
-                      src={a.image}
-                      alt={a.name}
-                      className="rounded-lg w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-200"
-                    />
-                  ) : (
-                    <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
-                      <span className="text-xs font-semibold line-clamp-2">
-                        {a.name}
-                      </span>
-                    </div>
-                  )}
-                  <p className="mt-1 font-regular text-white">{a.name}</p>
-                </a>
-              ))
-            : topTracks.map((t) => (
-                <div
-                  key={`${t.track}-${t.artist}`}
-                  className="group text-center transform transition-transform duration-200"
-                >
-                  {t.image ? (
-                    <img
-                      src={t.image}
-                      alt={t.track}
-                      className="rounded-lg w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-200"
-                    />
-                  ) : (
-                    <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
-                      <span className="text-xs font-semibold line-clamp-2">
-                        {t.track}
-                      </span>
-                    </div>
-                  )}
-                  <p className="mt-1 font-bold text-white">{t.track}</p>
-                  <p className="text-sm text-gray-300">{t.artist}</p>
-                  <p className="text-xs text-gray-400">{t.hours} h ouvidas</p>
+        {/* ARTISTAS */}
+        {activeTab === "artistas" && (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-7 relative z-0">
+            {topArtists.map((a) => (
+              <a
+                key={a.name}
+                href={`/artist/${encodeURIComponent(a.name)}`}
+                className={`group text-center transform transition-transform duration-200 ${
+                  activeArtist === a.name ? "scale-110" : ""
+                }`}
+                onTouchStart={() => setActiveArtist(a.name)}
+                onTouchEnd={() => setActiveArtist(null)}
+              >
+                {a.image ? (
+                  <img
+                    src={a.image}
+                    alt={a.name}
+                    className="rounded-lg w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-200"
+                  />
+                ) : (
+                  <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
+                    <span className="text-xs font-semibold line-clamp-2">
+                      {a.name}
+                    </span>
+                  </div>
+                )}
+                <p className="mt-1 font-regular text-white">{a.name}</p>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* MÚSICAS */}
+        {activeTab === "musicas" && (
+          <div className="flex flex-col gap-3">
+            {topTracks.map((t, index) => (
+              <div
+                key={`${t.track}-${t.artist}`}
+                className="flex items-center bg-[#000000] rounded-lg p-3 gap-4 group hover:bg-[#2a2a2a] transition-colors duration-200"
+              >
+                {/* Posição */}
+                <span className="text-gray-400 font-bold w-6 text-right">
+                  #{index + 1}
+                </span>
+
+                {/* Imagem do artista */}
+                {t.image ? (
+                  <img
+                    src={t.image}
+                    alt={t.track}
+                    className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2 flex-shrink-0">
+                    <span className="text-xs font-semibold line-clamp-2">
+                      {t.artist}
+                    </span>
+                  </div>
+                )}
+
+                {/* Info da música */}
+                <div className="flex-1 flex flex-col justify-center overflow-hidden">
+                  <p className="font-bold text-white truncate">{t.track}</p>
+                  <p className="text-sm text-gray-300 truncate">
+                    {t.artist} <span className="mx-1">•</span> {t.album || "Single"}
+                  </p>
                 </div>
-              ))}
-        </div>
+
+                {/* Botão ... */}
+                <button
+                  className="text-gray-400 hover:text-white font-bold text-lg px-2 py-1 ml-2"
+                  onClick={() => setActiveTrackPopup(t)}
+                >
+                  ...
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Modal de info da música */}
+      {activeTrackPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
+          <div className="bg-[#1a1a1a] p-6 rounded-lg w-80 text-white relative">
+            <button
+              className="absolute top-2 right-3 text-gray-400 hover:text-white font-bold"
+              onClick={() => setActiveTrackPopup(null)}
+            >
+              X
+            </button>
+            <h2 className="font-bold text-lg mb-4">{activeTrackPopup.track}</h2>
+            <p className="text-gray-300 mb-2">
+              Você ouviu essa música{" "}
+              <span className="font-bold">
+                {Math.ceil(activeTrackPopup.ms_played / 1000 / 60 / 3)} vezes
+              </span>
+              !
+            </p>
+            <p className="text-gray-300">
+              Você passou{" "}
+              <span className="font-bold">
+                {Math.floor(activeTrackPopup.ms_played / 1000 / 60)}
+              </span>{" "}
+              minutos ouvindo essa música!
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Fade Bottom FIXO */}
       <div className="pointer-events-none fixed bottom-0 left-0 w-full h-60 z-10">
