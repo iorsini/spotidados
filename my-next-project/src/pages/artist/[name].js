@@ -2,6 +2,12 @@ import fs from "fs";
 import path from "path";
 import { artistImages } from "@/utils/artistImages";
 import Navbar from "@/components/Navbar";
+import { FaHeadphonesAlt } from "react-icons/fa";
+import { VscGraph } from "react-icons/vsc";
+import { IoMusicalNotesSharp } from "react-icons/io5";
+import { FaCanadianMapleLeaf } from "react-icons/fa6";
+import { FaRegClock } from "react-icons/fa";
+import { FaTrophy } from "react-icons/fa6";
 
 // Função para determinar a estação
 function getSeason(date) {
@@ -123,23 +129,24 @@ export default function ArtistPage({ data, artistName }) {
 
       {/* Estatísticas */}
       <div className="flex flex-col items-center text-center px-6 py-6 gap-3 pb-24 text-white">
-        <p>
-          🎧 Ouviu <b>{stats.timesPlayed}</b> vezes
+        <p className="flex items-center gap-2">
+          <FaHeadphonesAlt /> Ouviu <b>{stats.timesPlayed}</b> vezes
         </p>
-        <p>
-          🏆 Posição no Top: <b>{stats.position}</b>
+        <p className="flex items-center gap-2">
+          <FaTrophy /> Posição no Top: <b>{stats.position}</b>
         </p>
-        <p>
-          ⏱️ <b>{stats.minutesPlayed}</b> minutos escutados
+        <p className="flex items-center gap-2">
+          <FaRegClock /> <b>{stats.minutesPlayed}</b> minutos escutados
         </p>
-        <p>
-          🍂 Estação favorita: <b>{stats.favoriteSeason}</b>
+        <p className="flex items-center gap-2">
+          <FaCanadianMapleLeaf /> Estação favorita:{" "}
+          <b>{stats.favoriteSeason}</b>
         </p>
-        <p>
-          🎵 <b>{stats.uniqueTracks}</b> músicas únicas
+        <p className="flex items-center gap-2">
+          <IoMusicalNotesSharp /> <b>{stats.uniqueTracks}</b> músicas únicas
         </p>
-        <p>
-          📊 Representa <b>{stats.percentage}%</b> das suas plays
+        <p className="flex items-center gap-2">
+          <VscGraph /> Representa <b>{stats.percentage}%</b> das suas plays
         </p>
 
         <a
