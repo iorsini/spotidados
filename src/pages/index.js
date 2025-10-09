@@ -48,7 +48,7 @@ export default function Home() {
           {/* Foto de perfil + nome + data */}
           <div className="w-1/2 flex flex-col items-center justify-center gap-2">
             <img
-              src="https://videos.openai.com/vg-assets/assets%2Ftask_01k6z4t7tcffm8xctt0k0vp82c%2F1759834426_img_1.webp?se=2025-10-10T01%3A07%3A50Z&sp=r&sv=2024-08-04&sr=b&skoid=1af02b11-169c-463d-b441-d2ccfc9f02c8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-09T20%3A04%3A55Z&ske=2025-10-09T21%3A14%3A55Z&sks=b&skv=2024-08-04&sig=XRyyH%2BuUNIKTpb4ETMLqmXNH6BncPLmkEnbnMlVqQYI%3D&az=oaivgprodscus"
+              src="perfil.png"
               alt="Foto de perfil"
               className="w-40 h-40 aspect-square rounded-full object-cover object-center"
             />
@@ -62,7 +62,7 @@ export default function Home() {
           {/* Logo + botões */}
           <div className="w-1/2 flex flex-col justify-center items-center gap-4">
             <Image
-              src="https://videos.openai.com/vg-assets/assets%2Ftask_01k6aj2kw2ez2tsk5xmbfkd841%2F1759143701_img_1.webp?se=2025-10-10T02%3A08%3A49Z&sp=r&sv=2024-08-04&sr=b&skoid=1af02b11-169c-463d-b441-d2ccfc9f02c8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-09T21%3A17%3A48Z&ske=2025-10-09T22%3A27%3A48Z&sks=b&skv=2024-08-04&sig=HXmVWFa4lIc02jyqH%2Bswsw4lTu6A6kPP4gulRY1hLDc%3D&az=oaivgprodscus"
+              src="/logo.png"
               alt="Meu Logo"
               width={100}
               height={100}
