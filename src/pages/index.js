@@ -62,7 +62,7 @@ export default function Home() {
           {/* Logo + botões */}
           <div className="w-1/2 flex flex-col justify-center items-center gap-4">
             <Image
-              src="https://videos.openai.com/vg-assets/assets%2Ftask_01k6aj2kw2ez2tsk5xmbfkd841%2F1759143701_img_1.webp?st=2025-10-02T06%3A44%3A02Z&se=2025-10-08T07%3A44%3A02Z&sks=b&skt=2025-10-02T06%3A44%3A02Z&ske=2025-10-08T07%3A44%3A02Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=1af02b11-169c-463d-b441-d2ccfc9f02c8&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=HAly8bKLg76DD%2Fs9XPAtWcEpLIr1E%2BmPmqC0Re8qAUc%3D&az=oaivgprodscus"
+              src="https://videos.openai.com/vg-assets/assets%2Ftask_01k6aj2kw2ez2tsk5xmbfkd841%2F1759143701_img_1.webp?se=2025-10-10T02%3A08%3A49Z&sp=r&sv=2024-08-04&sr=b&skoid=1af02b11-169c-463d-b441-d2ccfc9f02c8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-09T21%3A17%3A48Z&ske=2025-10-09T22%3A27%3A48Z&sks=b&skv=2024-08-04&sig=HXmVWFa4lIc02jyqH%2Bswsw4lTu6A6kPP4gulRY1hLDc%3D&az=oaivgprodscus"
               alt="Meu Logo"
               width={100}
               height={100}
