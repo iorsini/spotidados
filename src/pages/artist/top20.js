@@ -1,58 +1,54 @@
-import fs from "fs";
-import path from "path";
-import Navbar from "@/components/Navbar";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Navbar from "@/components/Navbar";
 import { artistImages } from "@/utils/artistImages";
 import { BsFire } from "react-icons/bs";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaRegClock, FaHeadphonesAlt } from "react-icons/fa";
 
-// Função para calcular estatísticas do artista
-function getArtistStats(data, artistName) {
-  const artistPlays = data.filter(
-    (item) => item.master_metadata_album_artist_name === artistName
-  );
-
-  const songStats = {};
-  artistPlays.forEach((item) => {
-    const track = item.master_metadata_track_name;
-    if (!track) return;
-    if (!songStats[track]) {
-      songStats[track] = {
-        track,
-        album: item.master_metadata_album_album_name || "Single",
-        ms_played: 0,
-        count: 0,
-      };
-    }
-    songStats[track].ms_played += item.ms_played;
-    songStats[track].count += 1;
-  });
-
-  const songsRanked = Object.values(songStats)
-    .sort((a, b) => b.ms_played - a.ms_played)
-    .slice(0, 20);
-
-  const totalPlays = artistPlays.length;
-  const totalMinutes = Math.floor(
-    artistPlays.reduce((acc, i) => acc + i.ms_played, 0) / 1000 / 60
-  );
-
-  return { songsRanked, totalPlays, totalMinutes };
-}
-
-export default function ArtistTop20({ data, artistName }) {
-  const { songsRanked, totalPlays, totalMinutes } = getArtistStats(
-    data,
-    artistName
-  );
+export default function ArtistTop20() {
   const router = useRouter();
+  const { artist } = router.query;
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeTrackPopup, setActiveTrackPopup] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
+  const artistName = artist ? decodeURIComponent(artist) : "";
   const artistImage =
     artistImages[artistName] || "https://via.placeholder.com/400?text=No+Image";
+
+  useEffect(() => {
+    if (!artist) return;
+    
+    setLoading(true);
+    fetch(`/api/artist/top20?artist=${encodeURIComponent(artist)}`)
+      .then(res => res.json())
+      .then(data => {
+        setStats(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Erro ao carregar top 20:', err);
+        setLoading(false);
+      });
+  }, [artist]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white text-xl">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white text-xl">Erro ao carregar dados</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center text-center min-h-screen relative">
@@ -100,11 +96,11 @@ export default function ArtistTop20({ data, artistName }) {
             <h2 className="font-bold text-lg mb-4">{artistName}</h2>
             <p className="text-gray-300 mb-2 flex justify-center items-center gap-2">
               <FaHeadphonesAlt /> Total de plays:{" "}
-              <span className="font-bold">{totalPlays}</span>
+              <span className="font-bold">{stats.totalPlays}</span>
             </p>
             <p className="text-gray-300 justify-center flex items-center gap-2">
               <FaRegClock /> Minutos ouvidos:{" "}
-              <span className="font-bold">{totalMinutes}</span>
+              <span className="font-bold">{stats.totalMinutes}</span>
             </p>
           </div>
         </div>
@@ -112,8 +108,8 @@ export default function ArtistTop20({ data, artistName }) {
 
       {/* Lista Top 20 */}
       <div className="w-full max-w-3xl flex flex-col gap-3 mt-4 px-4">
-        {songsRanked.length > 0 ? (
-          songsRanked.map((s, index) => (
+        {stats.songsRanked && stats.songsRanked.length > 0 ? (
+          stats.songsRanked.map((s, index) => (
             <div
               key={index}
               className="flex items-center bg-[#000000] rounded-lg p-3 gap-4 hover:bg-[#222222] transition-colors"
@@ -175,18 +171,4 @@ export default function ArtistTop20({ data, artistName }) {
       </div>
     </div>
   );
-}
-
-// =======================
-// Server-side props
-// =======================
-export async function getServerSideProps({ query }) {
-  const artistName = query.artist;
-  if (!artistName) return { notFound: true };
-
-  const filePath = path.join(process.cwd(), "src/data/history.json");
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const data = JSON.parse(raw);
-
-  return { props: { data, artistName } };
 }

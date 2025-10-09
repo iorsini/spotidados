@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 import { artistImages } from "@/utils/artistImages";
 import Navbar from "@/components/Navbar";
 import { FaHeadphonesAlt } from "react-icons/fa";
@@ -9,114 +9,56 @@ import { FaCanadianMapleLeaf } from "react-icons/fa6";
 import { FaRegClock } from "react-icons/fa";
 import { FaTrophy } from "react-icons/fa6";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { useRouter } from "next/router";
 
-// Função para determinar a estação
-function getSeason(date) {
-  const month = date.getMonth() + 1;
-  if ([12, 1, 2].includes(month)) return "Inverno";
-  if ([3, 4, 5].includes(month)) return "Primavera";
-  if ([6, 7, 8].includes(month)) return "Verão";
-  return "Outono";
-}
-
-// Função para calcular estatísticas do artista
-function getArtistStats(data, artistName, topArtists) {
-  const artistPlays = data.filter(
-    (item) => item.master_metadata_album_artist_name === artistName
-  );
-
-  const timesPlayed = artistPlays.length;
-  const minutesPlayed = Math.floor(
-    artistPlays.reduce((acc, i) => acc + i.ms_played, 0) / 60000
-  );
-  const uniqueTracks = new Set(
-    artistPlays.map((i) => i.master_metadata_track_name)
-  ).size;
-
-  const seasonCount = {};
-  artistPlays.forEach((p) => {
-    const s = getSeason(new Date(p.ts));
-    seasonCount[s] = (seasonCount[s] || 0) + 1;
-  });
-  const favoriteSeason =
-    Object.entries(seasonCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
-
-  const totalPlays = data.length;
-  const percentage = ((timesPlayed / totalPlays) * 100).toFixed(2);
-
-  const position =
-    topArtists.findIndex((a) => a.name === artistName) + 1 || "N/A";
-
+// Adiciona getServerSideProps para funcionar corretamente
+export async function getServerSideProps({ params }) {
   return {
-    timesPlayed,
-    minutesPlayed,
-    uniqueTracks,
-    favoriteSeason,
-    percentage,
-    position,
+    props: {
+      artistNameFromUrl: params.name,
+    },
   };
 }
 
-// Função para pegar os top artistas
-function getTopArtists(data, topN = 100) {
-  const counts = {};
-  data.forEach((item) => {
-    const artist = item.master_metadata_album_artist_name;
-    if (artist) counts[artist] = (counts[artist] || 0) + 1;
-  });
+export default function ArtistPage({ artistNameFromUrl }) {
+  const router = useRouter();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  return Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, topN)
-    .map(([name, count]) => ({
-      name,
-      count,
-      image:
-        artistImages[name] || "https://via.placeholder.com/400?text=No+Image",
-    }));
-}
-
-// 🔹 Gera as rotas dinâmicas
-export async function getStaticPaths() {
-  const filePath = path.join(process.cwd(), "src/data/history.json");
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const data = JSON.parse(raw);
-
-  const artists = [
-    ...new Set(
-      data.map((i) => i.master_metadata_album_artist_name).filter(Boolean)
-    ),
-  ];
-
-  return {
-    paths: artists.map((name) => ({
-      params: { name: encodeURIComponent(name) },
-    })),
-    fallback: "blocking",
-  };
-}
-
-// 🔹 Gera os props de cada artista
-export async function getStaticProps({ params }) {
-  const filePath = path.join(process.cwd(), "src/data/history.json");
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const data = JSON.parse(raw);
-
-  const artistName = decodeURIComponent(params.name);
-
-  return {
-    props: { data, artistName },
-  };
-}
-
-// 🔹 Componente principal da página de artista
-export default function ArtistPage({ data, artistName }) {
-  const topArtists = getTopArtists(data);
-  const stats = getArtistStats(data, artistName, topArtists);
+  const artistName = artistNameFromUrl ? decodeURIComponent(artistNameFromUrl) : "";
   const artistImage =
     artistImages[artistName] || "https://via.placeholder.com/400?text=No+Image";
-  const router = useRouter();
+
+  useEffect(() => {
+    if (!artistNameFromUrl) return;
+    
+    setLoading(true);
+    fetch(`/api/artist/${encodeURIComponent(artistNameFromUrl)}`)
+      .then(res => res.json())
+      .then(data => {
+        setStats(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Erro ao carregar stats do artista:', err);
+        setLoading(false);
+      });
+  }, [artistNameFromUrl]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white text-xl">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white text-xl">Erro ao carregar dados</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

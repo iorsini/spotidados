@@ -1,111 +1,34 @@
 import { useState, useRef, useEffect } from "react";
-import fs from "fs";
-import path from "path";
-import { artistImages } from "../utils/artistImages";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
-function getMaxDate(data) {
-  return data.reduce((max, item) => {
-    const d = new Date(item.ts);
-    return d > max ? d : max;
-  }, new Date(data[0].ts));
-}
-
-function filterByPeriod(data, period) {
-  if (!data.length) return [];
-  const maxDate = getMaxDate(data);
-  let cutoff;
-  switch (period) {
-    case "4w":
-      cutoff = new Date(maxDate);
-      cutoff.setDate(cutoff.getDate() - 28);
-      break;
-    case "6m":
-      cutoff = new Date(maxDate);
-      cutoff.setMonth(cutoff.getMonth() - 6);
-      break;
-    case "1y":
-      cutoff = new Date(maxDate);
-      cutoff.setFullYear(cutoff.getFullYear() - 1);
-      break;
-    case "all":
-    default:
-      return data;
-  }
-  return data.filter((item) => new Date(item.ts) >= cutoff);
-}
-
-// ---- TOP ARTISTAS ----
-function getTopArtists(data, topN = 100) {
-  const counts = {};
-  data.forEach((item) => {
-    const artist = item.master_metadata_album_artist_name;
-    if (artist) counts[artist] = (counts[artist] || 0) + 1;
-  });
-  return Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, topN)
-    .map(([name, count]) => ({
-      name,
-      count,
-      image: artistImages[name] || null,
-    }));
-}
-
-// ---- TOP MÚSICAS ----
-function getTopTracks(data, topN = 100) {
-  const counts = {};
-  data.forEach((item) => {
-    const track = item.master_metadata_track_name;
-    const artist = item.master_metadata_album_artist_name;
-    if (track && artist) {
-      const key = `${track} - ${artist}`;
-      counts[key] = (counts[key] || 0) + item.ms_played;
-    }
-  });
-
-  return Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, topN)
-    .map(([name, ms_played]) => {
-      const [track, artist] = name.split(" - ");
-      const album = data.find(
-        (item) =>
-          item.master_metadata_track_name === track &&
-          item.master_metadata_album_artist_name === artist
-      )?.master_metadata_album_album_name;
-
-      return {
-        track,
-        artist,
-        album,
-        ms_played,
-        hours: Math.floor(ms_played / 1000 / 60 / 60),
-        image: artistImages[artist] || null,
-      };
-    });
-}
-
-export async function getStaticProps() {
-  const filePath = path.join(process.cwd(), "src/data/history.json");
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const data = JSON.parse(raw);
-
-  return { props: { data } };
-}
-
-export default function Top100({ data }) {
+export default function Top100() {
   const [period, setPeriod] = useState("all");
   const [activeTab, setActiveTab] = useState("artistas");
   const [activeArtist, setActiveArtist] = useState(null);
   const [activeTrackPopup, setActiveTrackPopup] = useState(null);
-
-  const filteredData = filterByPeriod(data, period);
-  const topArtists = getTopArtists(filteredData, 100);
-  const topTracks = getTopTracks(filteredData, 100);
+  const [topArtists, setTopArtists] = useState([]);
+  const [topTracks, setTopTracks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const navbarRef = useRef(null);
   const [navbarHeight, setNavbarHeight] = useState(0);
+
+  // Busca dados da API quando o período muda
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/artists?period=${period}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTopArtists(data.topArtists);
+        setTopTracks(data.topTracks);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar dados:", err);
+        setLoading(false);
+      });
+  }, [period]);
 
   useEffect(() => {
     if (navbarRef.current) {
@@ -219,84 +142,91 @@ export default function Top100({ data }) {
         className="flex-1 overflow-y-auto pb-24 px-6 relative z-0"
         style={{ paddingTop: navbarHeight + fadeHeight - 40 }}
       >
-        {/* ARTISTAS */}
-        {activeTab === "artistas" && (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-7 relative z-0">
-            {topArtists.map((a) => (
-              <a
-                key={a.name}
-                href={`/artist/${encodeURIComponent(a.name)}`}
-                className={`group text-center transform transition-transform duration-200 ${
-                  activeArtist === a.name ? "scale-110" : ""
-                }`}
-                onTouchStart={() => setActiveArtist(a.name)}
-                onTouchEnd={() => setActiveArtist(null)}
-              >
-                {a.image ? (
-                  <img
-                    src={a.image}
-                    alt={a.name}
-                    className="rounded-lg w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-200"
-                  />
-                ) : (
-                  <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
-                    <span className="text-xs font-semibold line-clamp-2">
-                      {a.name}
-                    </span>
-                  </div>
-                )}
-                <p className="mt-1 font-regular text-white">{a.name}</p>
-              </a>
-            ))}
-          </div>
-        )}
-
-        {/* MÚSICAS */}
-        {activeTab === "musicas" && (
-          <div className="flex flex-col gap-3">
-            {topTracks.map((t, index) => (
-              <div
-                key={`${t.track}-${t.artist}`}
-                className="flex items-center bg-[#000000] rounded-lg p-3 gap-4 group hover:bg-[#2a2a2a] transition-colors duration-200"
-              >
-                {/* Posição */}
-                <span className="text-gray-400 font-bold w-6 text-right">
-                  #{index + 1}
-                </span>
-
-                {/* Imagem do artista */}
-                {t.image ? (
-                  <img
-                    src={t.image}
-                    alt={t.track}
-                    className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2 flex-shrink-0">
-                    <span className="text-xs font-semibold line-clamp-2">
-                      {t.artist}
-                    </span>
-                  </div>
-                )}
-
-                {/* Info da música */}
-                <div className="flex-1 flex flex-col justify-center overflow-hidden">
-                  <p className="font-bold text-white truncate">{t.track}</p>
-                  <p className="text-sm text-gray-300 truncate">
-                    {t.artist} <span className="mx-1">•</span> {t.album || "Single"}
-                  </p>
-                </div>
-
-                {/* Botão ... */}
-                <button
-                  className="text-gray-400 hover:text-white font-bold text-lg px-2 py-1 ml-2"
-                  onClick={() => setActiveTrackPopup(t)}
-                >
-                  ...
-                </button>
+        {loading ? (
+          <div className="text-white text-center py-8">Carregando...</div>
+        ) : (
+          <>
+            {/* ARTISTAS */}
+            {activeTab === "artistas" && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-7 relative z-0">
+                {topArtists.map((a) => (
+                  <Link
+                    key={a.name}
+                    href={`/artist/${encodeURIComponent(a.name)}`}
+                    className={`group text-center transform transition-transform duration-200 ${
+                      activeArtist === a.name ? "scale-110" : ""
+                    }`}
+                    onTouchStart={() => setActiveArtist(a.name)}
+                    onTouchEnd={() => setActiveArtist(null)}
+                  >
+                    {a.image ? (
+                      <img
+                        src={a.image}
+                        alt={a.name}
+                        className="rounded-lg w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-200"
+                      />
+                    ) : (
+                      <div className="rounded-lg w-full h-40 flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2">
+                        <span className="text-xs font-semibold line-clamp-2">
+                          {a.name}
+                        </span>
+                      </div>
+                    )}
+                    <p className="mt-1 font-regular text-white">{a.name}</p>
+                  </Link>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* MÚSICAS */}
+            {activeTab === "musicas" && (
+              <div className="flex flex-col gap-3">
+                {topTracks.map((t, index) => (
+                  <div
+                    key={`${t.track}-${t.artist}`}
+                    className="flex items-center bg-[#000000] rounded-lg p-3 gap-4 group hover:bg-[#2a2a2a] transition-colors duration-200"
+                  >
+                    {/* Posição */}
+                    <span className="text-gray-400 font-bold w-6 text-right">
+                      #{index + 1}
+                    </span>
+
+                    {/* Imagem do artista */}
+                    {t.image ? (
+                      <img
+                        src={t.image}
+                        alt={t.track}
+                        className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-700 to-black text-white p-2 flex-shrink-0">
+                        <span className="text-xs font-semibold line-clamp-2">
+                          {t.artist}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Info da música */}
+                    <div className="flex-1 flex flex-col justify-center overflow-hidden">
+                      <p className="font-bold text-white truncate">{t.track}</p>
+                      <p className="text-sm text-gray-300 truncate">
+                        {t.artist} <span className="mx-1">•</span>{" "}
+                        {t.album || "Single"}
+                      </p>
+                    </div>
+
+                    {/* Botão ... */}
+                    <button
+                      className="text-gray-400 hover:text-white font-bold text-lg px-2 py-1 ml-2"
+                      onClick={() => setActiveTrackPopup(t)}
+                    >
+                      ...
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -313,10 +243,7 @@ export default function Top100({ data }) {
             <h2 className="font-bold text-lg mb-4">{activeTrackPopup.track}</h2>
             <p className="text-gray-300 mb-2">
               Você ouviu essa música{" "}
-              <span className="font-bold">
-                {Math.ceil(activeTrackPopup.ms_played / 1000 / 60 / 3)} vezes
-              </span>
-              !
+              <span className="font-bold">{activeTrackPopup.count} vezes</span>!
             </p>
             <p className="text-gray-300">
               Você passou{" "}
